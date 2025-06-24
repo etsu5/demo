@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maison d'Or - Artisan Patisserie</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@100;200;300;400&display=swap');
+        
+        :root {
+            --gold: #D4AF37;
+            --gold-light: #F4E5C2;
+            --charcoal: #1a1a1a;
+            --cream: #FFFEF7;
+            --gray: #696969;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--charcoal);
+            color: var(--cream);
+            overflow-x: hidden;
+            cursor: none;
+        }
+        
+        /* Custom Cursor */
+        .cursor {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            transition: all 0.1s ease;
+            z-index: 9999;
+            mix-blend-mode: difference;
+        }
+        
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background-color: var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        /* Loading Screen */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--charcoal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            color: var(--gold);
+            font-weight: 300;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 2rem 5%;
+            z-index: 1000;
+            mix-blend-mode: difference;
+            transition: var(--transition);
+        }
+        
+        nav.scrolled {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            mix-blend-mode: normal;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            color: var(--cream);
+            font-weight: 300;
+            letter-spacing: 3px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+        
+        .nav-link {
+            color: var(--cream);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 200;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            background: linear-gradient(135deg, var(--gold) 0%, transparent 40%);
+        }
+        
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            transform: translateY(50px);
+            opacity: 0;
+            animation: fadeInUp 1s forwards 0.5s;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(4rem, 10vw, 8rem);
+            font-weight: 300;
+            line-height: 0.9;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 0.9rem;
+            font-weight: 200;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 60px;
+            background: var(--gold);
+            opacity: 0.5;
+            animation: scrollDown 2s infinite;
+        }
+        
+        @keyframes scrollDown {
+            0% { transform: translateX(-50%) scaleY(0); transform-origin: top; }
+            50% { transform: translateX(-50%) scaleY(1); transform-origin: top; }
+            51% { transform: translateX(-50%) scaleY(1); transform-origin: bottom; }
+            100% { transform: translateX(-50%) scaleY(0); transform-origin: bottom; }
+        }
+        
+        /* Content Sections */
+        section {
+            padding: 10rem 5%;
+            position: relative;
+        }
+        
+        .section-header {
+            margin-bottom: 5rem;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .section-header.visible {
+            animation: fadeInUp 1s forwards;
+        }
+        
+        .section-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 8rem;
+            color: var(--gold);
+            opacity: 0.1;
+            position: absolute;
+            top: -3rem;
+            left: 0;
+            font-weight: 300;
+        }
+        
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+        
+        .section-subtitle {
+            font-size: 0.9rem;
+            font-weight: 200;
+            letter-spacing: 2px;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+        
+        /* Philosophy Section */
+        .philosophy {
+            background: var(--cream);
+            color: var(--charcoal);
+        }
+        
+        .philosophy-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+        
+        .philosophy-text {
+            font-size: 1.1rem;
+            line-height: 2;
+            font-weight: 300;
+        }
+        
+        .philosophy-image {
+            position: relative;
+            height: 600px;
+            overflow: hidden;
+        }
+        
+        .philosophy-image::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            background: linear-gradient(45deg, var(--gold-light), transparent);
+            opacity: 0.3;
+            transform: rotate(-5deg);
+        }
+        
+        /* Products Showcase */
+        .products {
+            background: var(--charcoal);
+            overflow: hidden;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
+            margin-top: 5rem;
+        }
+        
+        .product-card {
+            position: relative;
+            height: 70vh;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--charcoal);
+            opacity: 0.7;
+            transition: opacity 0.5s;
+            z-index: 1;
+        }
+        
+        .product-card:hover::before {
+            opacity: 0.3;
+        }
+        
+        .product-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gray) 100%);
+            transform: scale(1.1);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .product-card:hover .product-bg {
+            transform: scale(1);
+        }
+        
+        .product-content {
+            position: absolute;
+            bottom: 3rem;
+            left: 3rem;
+            z-index: 2;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.5s 0.2s;
+        }
+        
+        .product-card:hover .product-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .product-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-description {
+            font-size: 0.9rem;
+            font-weight: 200;
+            opacity: 0.8;
+            max-width: 300px;
+        }
+        
+        .product-price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-top: 1rem;
+        }
+        
+        /* Atelier Section */
+        .atelier {
+            background: linear-gradient(to bottom, var(--charcoal) 0%, #2a2a2a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .atelier-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+        
+        .atelier-visual {
+            position: relative;
+            height: 500px;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: var(--gold);
+            opacity: 0.1;
+            border-radius: 50%;
+            animation: float 10s infinite ease-in-out;
+        }
+        
+        .floating-element:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 30%;
+            right: 20%;
+            animation-delay: -5s;
+        }
+        
+        .floating-element:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            bottom: 10%;
+            left: 30%;
+            animation-delay: -2.5s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+        
+        /* Visit Section */
+        .visit {
+            background: var(--cream);
+            color: var(--charcoal);
+            padding: 10rem 5% 5rem;
+        }
+        
+        .visit-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 5rem;
+        }
+        
+        .map-container {
+            position: relative;
+            height: 500px;
+            background: var(--charcoal);
+            overflow: hidden;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 60%, var(--charcoal) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .visit-info {
+            padding: 2rem 0;
+        }
+        
+        .info-block {
+            margin-bottom: 3rem;
+        }
+        
+        .info-block h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: var(--gold);
+        }
+        
+        .info-block p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--charcoal);
+            padding: 5rem 5%;
+            text-align: center;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--gold);
+            transition: var(--transition);
+        }
+        
+        .social-link:hover {
+            background: var(--gold);
+            color: var(--charcoal);
+        }
+        
+        .copyright {
+            font-size: 0.8rem;
+            font-weight: 200;
+            opacity: 0.5;
+            letter-spacing: 1px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .philosophy-content,
+            .atelier-content,
+            .visit-container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .hero h1 {
+                font-size: 4rem;
+            }
+            
+            section {
+                padding: 5rem 5%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .cursor,
+            .cursor-dot {
+                display: none;
+            }
+            
+            body {
+                cursor: auto;
+            }
+            
+            .product-card {
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+    
+    <!-- Loader -->
+    <div class="loader">
+        <div class="loader-text">Maison d'Or</div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">MAISON D'OR</div>
+            <ul class="nav-menu">
+                <li><a href="#philosophy" class="nav-link">Philosophy</a></li>
+                <li><a href="#products" class="nav-link">Collection</a></li>
+                <li><a href="#atelier" class="nav-link">Atelier</a></li>
+                <li><a href="#visit" class="nav-link">Visit</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <div class="hero-subtitle">Artisan Pâtisserie</div>
+            <h1>Maison<br>d'Or</h1>
+        </div>
+        <div class="scroll-indicator"></div>
+    </section>
+    
+    <!-- Philosophy Section -->
+    <section id="philosophy" class="philosophy">
+        <div class="section-header">
+            <span class="section-number">01</span>
+            <h2>Notre Philosophie</h2>
+            <p class="section-subtitle">The Art of French Pastry</p>
+        </div>
+        <div class="philosophy-content">
+            <div class="philosophy-text">
+                <p>
+                    パリの街角で偶然出会う、忘れられない焼き菓子。
+                    その一瞬の感動を、ここ東京で再現したい。
+                </p>
+                <p>
+                    Maison d'Orは、フランスの伝統と日本の繊細さが出会う場所。
+                    最高級の素材と、熟練の技、そして何より、
+                    お菓子への深い愛情が生み出す、唯一無二の味わい。
+                </p>
+                <p>
+                    一つ一つ丁寧に、時間をかけて。
+                    それが私たちの約束です。
+                </p>
+            </div>
+            <div class="philosophy-image">
+                <div class="image-placeholder"></div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Products Section -->
+    <section id="products" class="products">
+        <div class="section-header">
+            <span class="section-number">02</span>
+            <h2>Collection Signature</h2>
+            <p class="section-subtitle">Our Masterpieces</p>
+        </div>
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-bg"></div>
+                <div class="product-content">
+                    <h3 class="product-name">Madeleine Royale</h3>
+                    <p class="product-description">ベルガモットとレモンの香り豊かな王室のマドレーヌ</p>
+                    <p class="product-price">¥480</p>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-bg"></div>
+                <div class="product-content">
+                    <h3 class="product-name">Financier d'Or</h3>
+                    <p class="product-description">24金の金箔を纏った究極のフィナンシェ</p>
+                    <p class="product-price">¥680</p>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-bg"></div>
+                <div class="product-content">
+                    <h3 class="product-name">Canelé Bordeaux</h3>
+                    <p class="product-description">ラム酒とバニラが香る本場ボルドーのカヌレ</p>
+                    <p class="product-price">¥520</p>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-bg"></div>
+                <div class="product-content">
+                    <h3 class="product-name">Sablé Diamant</h3>
+                    <p class="product-description">ダイヤモンドのように輝く極上サブレ</p>
+                    <p class="product-price">¥420</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Atelier Section -->
+    <section id="atelier" class="atelier">
+        <div class="section-header">
+            <span class="section-number">03</span>
+            <h2>L'Atelier</h2>
+            <p class="section-subtitle">Where Magic Happens</p>
+        </div>
+        <div class="atelier-content">
+            <div class="atelier-visual">
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+            </div>
+            <div class="atelier-text">
+                <p style="font-size: 1.2rem; line-height: 2; font-weight: 200;">
+                    毎朝4時、静寂に包まれたアトリエで、
+                    その日の焼き菓子づくりが始まります。
+                </p>
+                <p style="font-size: 1rem; line-height: 1.8; margin-top: 2rem; opacity: 0.8;">
+                    フランスから直輸入した石臼で挽いた小麦粉、
+                    厳選されたブルターニュ産の発酵バター、
+                    マダガスカル産の最高級バニラビーンズ。
+                </p>
+                <p style="font-size: 1rem; line-height: 1.8; margin-top: 2rem; opacity: 0.8;">
+                    素材の声に耳を傾け、その日の温度と湿度に合わせて、
+                    職人が一つ一つ丁寧に焼き上げていきます。
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Visit Section -->
+    <section id="visit" class="visit">
+        <div class="section-header">
+            <span class="section-number">04</span>
+            <h2>Visitez-Nous</h2>
+            <p class="section-subtitle">Find Your Way to Excellence</p>
+        </div>
+        <div class="visit-container">
+            <div class="map-container">
+                <div class="map-overlay"></div>
+                <!-- Google Map will be embedded here -->
+            </div>
+            <div class="visit-info">
+                <div class="info-block">
+                    <h3>Address</h3>
+                    <p>
+                        〒107-0062<br>
+                        東京都港区南青山 3-15-9<br>
+                        MAISON D'OR Building
+                    </p>
+                </div>
+                <div class="info-block">
+                    <h3>Hours</h3>
+                    <p>
+                        Tuesday - Saturday<br>
+                        10:00 - 19:00<br><br>
+                        Sunday<br>
+                        10:00 - 18:00<br><br>
+                        Closed on Mondays
+                    </p>
+                </div>
+                <div class="info-block">
+                    <h3>Contact</h3>
+                    <p>
+                        Tel: 03-6805-1234<br>
+                        contact@maisondor.jp
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="logo" style="margin-bottom: 2rem;">MAISON D'OR</div>
+            <div class="social-links">
+                <a href="#" class="social-link">f</a>
+                <a href="#" class="social-link">i</a>
+                <a href="#" class="social-link">t</a>
+            </div>
+            <p class="copyright">© 2024 Maison d'Or. Tous droits réservés.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+        
+        document.addEventListener('mousedown', () => {
+            cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        });
+        
+        document.addEventListener('mouseup', () => {
+            cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+        
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loader').classList.add('hidden');
+            }, 1500);
+        });
+        
+        // Navigation Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+        
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Intersection Observer for Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.section-header').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Parallax Effect for Products
+        const productCards = document.querySelectorAll('.product-card');
+        
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            
+            productCards.forEach((card, index) => {
+                const speed = 1 + (index * 0.1);
+                const yPos = -(scrolled * speed * 0.01);
+                card.style.transform = `translateY(${yPos}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
