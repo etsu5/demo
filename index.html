@@ -336,7 +336,8 @@
             z-index: 1;
         }
         
-        .product-card:hover::before {
+        .product-card:hover::before,
+        .product-card.touch-active::before {
             opacity: 0.3;
         }
         
@@ -346,12 +347,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gray) 100%);
+            background-size: cover;
+            background-position: center;
             transform: scale(1.1);
             transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: brightness(0.7);
         }
         
-        .product-card:hover .product-bg {
+        .product-card:hover .product-bg,
+        .product-card.touch-active .product-bg {
             transform: scale(1);
         }
         
@@ -365,7 +369,8 @@
             transition: all 0.5s 0.2s;
         }
         
-        .product-card:hover .product-content {
+        .product-card:hover .product-content,
+        .product-card.touch-active .product-content {
             transform: translateY(0);
             opacity: 1;
         }
@@ -562,9 +567,66 @@
             }
         }
         
+        /* Mobile Navigation */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--cream);
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100vh;
+            background: var(--charcoal);
+            z-index: 999;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .mobile-menu.active {
+            right: 0;
+        }
+        
+        .mobile-menu-links {
+            list-style: none;
+            text-align: center;
+        }
+        
+        .mobile-menu-links li {
+            margin: 2rem 0;
+        }
+        
+        .mobile-menu-links a {
+            color: var(--cream);
+            text-decoration: none;
+            font-size: 2rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            transition: color 0.3s;
+        }
+        
+        .mobile-menu-links a:hover {
+            color: var(--gold);
+        }
+        
+        /* Mobile Optimizations */
         @media (max-width: 768px) {
             .nav-menu {
                 display: none;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
             }
             
             .cursor,
@@ -578,6 +640,107 @@
             
             .product-card {
                 cursor: pointer;
+                height: 50vh;
+            }
+            
+            nav {
+                padding: 1.5rem 5%;
+            }
+            
+            .hero h1 {
+                font-size: clamp(3rem, 12vw, 5rem);
+                letter-spacing: -1px;
+            }
+            
+            .hero-subtitle {
+                font-size: 0.8rem;
+                letter-spacing: 3px;
+            }
+            
+            section {
+                padding: 5rem 5%;
+            }
+            
+            h2 {
+                font-size: 2.5rem;
+            }
+            
+            .section-number {
+                font-size: 5rem;
+                top: -2rem;
+            }
+            
+            .philosophy-text {
+                font-size: 1rem;
+            }
+            
+            .philosophy-image {
+                height: 400px;
+            }
+            
+            .product-content {
+                left: 2rem;
+                bottom: 2rem;
+            }
+            
+            .product-name {
+                font-size: 2rem;
+            }
+            
+            .product-description {
+                font-size: 0.85rem;
+                max-width: 250px;
+            }
+            
+            .atelier-text p {
+                font-size: 1rem !important;
+            }
+            
+            .floating-element {
+                display: none;
+            }
+            
+            .map-container {
+                height: 350px;
+            }
+            
+            .info-block h3 {
+                font-size: 1.5rem;
+            }
+            
+            .info-block p {
+                font-size: 0.9rem;
+            }
+            
+            footer {
+                padding: 3rem 5%;
+            }
+            
+            .loader-text {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .product-card {
+                height: 40vh;
+            }
+            
+            .product-content {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .section-subtitle {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -586,6 +749,16 @@
     <!-- Custom Cursor -->
     <div class="cursor"></div>
     <div class="cursor-dot"></div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <ul class="mobile-menu-links">
+            <li><a href="#philosophy">Philosophy</a></li>
+            <li><a href="#products">Collection</a></li>
+            <li><a href="#atelier">Atelier</a></li>
+            <li><a href="#visit">Visit</a></li>
+        </ul>
+    </div>
     
     <!-- Loader -->
     <div class="loader">
@@ -602,6 +775,9 @@
                 <li><a href="#atelier" class="nav-link">Atelier</a></li>
                 <li><a href="#visit" class="nav-link">Visit</a></li>
             </ul>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span>☰</span>
+            </button>
         </div>
     </nav>
     
@@ -639,7 +815,7 @@
                 </p>
             </div>
             <div class="philosophy-image">
-                <div class="image-placeholder"></div>
+                <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80" alt="Artisan Baker" style="width: 100%; height: 100%; object-fit: cover; filter: sepia(0.2);">
             </div>
         </div>
     </section>
@@ -653,7 +829,7 @@
         </div>
         <div class="products-grid">
             <div class="product-card">
-                <div class="product-bg"></div>
+                <div class="product-bg" style="background-image: url('https://images.unsplash.com/photo-1623334044303-241021148842?w=800&q=80');"></div>
                 <div class="product-content">
                     <h3 class="product-name">Madeleine Royale</h3>
                     <p class="product-description">ベルガモットとレモンの香り豊かな王室のマドレーヌ</p>
@@ -661,7 +837,7 @@
                 </div>
             </div>
             <div class="product-card">
-                <div class="product-bg"></div>
+                <div class="product-bg" style="background-image: url('https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=800&q=80');"></div>
                 <div class="product-content">
                     <h3 class="product-name">Financier d'Or</h3>
                     <p class="product-description">24金の金箔を纏った究極のフィナンシェ</p>
@@ -669,7 +845,7 @@
                 </div>
             </div>
             <div class="product-card">
-                <div class="product-bg"></div>
+                <div class="product-bg" style="background-image: url('https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=800&q=80');"></div>
                 <div class="product-content">
                     <h3 class="product-name">Canelé Bordeaux</h3>
                     <p class="product-description">ラム酒とバニラが香る本場ボルドーのカヌレ</p>
@@ -677,7 +853,7 @@
                 </div>
             </div>
             <div class="product-card">
-                <div class="product-bg"></div>
+                <div class="product-bg" style="background-image: url('https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=800&q=80');"></div>
                 <div class="product-content">
                     <h3 class="product-name">Sablé Diamant</h3>
                     <p class="product-description">ダイヤモンドのように輝く極上サブレ</p>
@@ -728,7 +904,15 @@
         <div class="visit-container">
             <div class="map-container">
                 <div class="map-overlay"></div>
-                <!-- Google Map will be embedded here -->
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3241.416954377348!2d139.7130434!3d35.6668756!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188b9b5c5f3d31%3A0x3c3d1e4d8f8f8f8f!2z5p2x5Lqs6YO95riv5Yy65Y2X6Z2S5bGxM-S4geebrizml6XmnKw!5e0!3m2!1sja!2sjp!4v1635000000000!5m2!1sja!2sjp"
+                    width="100%" 
+                    height="100%" 
+                    style="border:0; filter: grayscale(100%) contrast(1.2);" 
+                    allowfullscreen="" 
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
             </div>
             <div class="visit-info">
                 <div class="info-block">
@@ -841,6 +1025,38 @@
         document.querySelectorAll('.section-header').forEach(el => {
             observer.observe(el);
         });
+        
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const mobileMenuLinks = document.querySelectorAll('.mobile-menu-links a');
+        
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+            mobileMenuToggle.innerHTML = mobileMenu.classList.contains('active') ? '<span>✕</span>' : '<span>☰</span>';
+        });
+        
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                mobileMenuToggle.innerHTML = '<span>☰</span>';
+            });
+        });
+        
+        // Touch-friendly hover effects for mobile
+        if ('ontouchstart' in window) {
+            productCards.forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.classList.add('touch-active');
+                });
+                
+                card.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.classList.remove('touch-active');
+                    }, 300);
+                });
+            });
+        }
         
         // Parallax Effect for Products
         const productCards = document.querySelectorAll('.product-card');
